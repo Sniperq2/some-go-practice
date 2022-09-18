@@ -12,6 +12,7 @@ var ErrInvalidString = errors.New("invalid string")
 func Unpack(line string) (string, error) {
 	var stack string
 	var sb strings.Builder
+	var isPrevDigit bool
 
 	if len(line) == 0 {
 		return "", nil
@@ -21,8 +22,15 @@ func Unpack(line string) (string, error) {
 		return "", ErrInvalidString
 	}
 
-	for _, value := range line {
+	for idx, value := range line {
+		if unicode.IsDigit(value) && idx == 0 {
+			return "", ErrInvalidString
+		}
+		if unicode.IsDigit(value) && isPrevDigit {
+			return "", ErrInvalidString
+		}
 		if unicode.IsDigit(value) {
+			isPrevDigit = true
 			if item, err := strconv.Atoi(string(value)); err == nil {
 				if item-1 > 0 {
 					sb.WriteString(strings.Repeat(stack, item-1))
@@ -35,6 +43,7 @@ func Unpack(line string) (string, error) {
 				}
 			}
 		} else {
+			isPrevDigit = false
 			stack = string(value)
 			sb.WriteString(string(value))
 		}

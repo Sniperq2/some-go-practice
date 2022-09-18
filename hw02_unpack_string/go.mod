@@ -1,4 +1,4 @@
-module github.com/Sniperq2/some-go-practive/hw02_unpack_string
+module github.com/Sniperq2/hw02_unpack_string
 
 go 1.16
 
