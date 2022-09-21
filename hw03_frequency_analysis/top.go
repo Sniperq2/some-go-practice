@@ -16,7 +16,7 @@ func Top10(line string) []string {
 		_, found := wordCounter[lightWord]
 
 		if found && len(lightWord) > 0 {
-			wordCounter[lightWord] += 1
+			wordCounter[lightWord]++
 		} else {
 			wordCounter[lightWord] = 1
 		}
