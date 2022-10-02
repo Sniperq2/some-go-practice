@@ -1,7 +1,6 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -28,9 +27,10 @@ func Top10(line string) []string {
 		keys = append(keys, k)
 	}
 
-	fmt.Println(keys)
-
-	sort.SliceStable(keys, func(i, j int) bool {
+	sort.Slice(keys, func(i, j int) bool {
+		if wordCounter[keys[i]] == wordCounter[keys[j]] {
+			return keys[i] < keys[j]
+		}
 		return wordCounter[keys[i]] > wordCounter[keys[j]]
 	})
 
