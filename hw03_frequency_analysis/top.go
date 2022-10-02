@@ -34,7 +34,7 @@ func Top10(line string) []string {
 		return wordCounter[keys[i]] > wordCounter[keys[j]]
 	})
 
-	var h = make([]string, 0, 10)
+	h := make([]string, 0, 10)
 
 	for idx, k := range keys {
 		if idx < 10 {
