@@ -31,16 +31,17 @@ func Unpack(line string) (string, error) {
 		}
 		if unicode.IsDigit(value) {
 			isPrevDigit = true
-			if item, err := strconv.Atoi(string(value)); err == nil {
-				if item-1 > 0 {
-					sb.WriteString(strings.Repeat(stack, item-1))
-				} else if item-1 < 0 {
-					str := sb.String()
-					sb.Reset()
-					sb.WriteString(str[:len(str)-1])
-				} else {
-					sb.WriteString(stack)
-				}
+			item, err := strconv.Atoi(string(value))
+			if err != nil {
+				return "", ErrInvalidString
+			}
+
+			if item-1 > 0 {
+				sb.WriteString(strings.Repeat(stack, item-1))
+			} else if item-1 < 0 {
+				str := sb.String()
+				sb.Reset()
+				sb.WriteString(str[:len(str)-1])
 			}
 		} else {
 			isPrevDigit = false
