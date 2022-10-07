@@ -48,6 +48,14 @@ func TestTop10(t *testing.T) {
 		require.Len(t, Top10(""), 0)
 	})
 
+	t.Run("len 10 must returned", func(t *testing.T) {
+		require.Len(t, Top10(text), 10)
+	})
+
+	t.Run("returned slice of string", func(t *testing.T) {
+		require.IsType(t, []string{}, Top10(text))
+	})
+
 	t.Run("positive test", func(t *testing.T) {
 		if taskWithAsteriskIsCompleted {
 			expected := []string{
