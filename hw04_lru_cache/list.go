@@ -11,15 +11,14 @@ type List interface {
 }
 
 type ListItem struct {
-	Value interface{}
-	Next  *ListItem
-	Prev  *ListItem
+	Value interface{} // данные
+	Next  *ListItem   // указатель на следующий элемент
+	Prev  *ListItem   // указатель на предыдущий элемент
 }
 
 type list struct {
-	List
-	Head *ListItem
-	Tail *ListItem
+	Head *ListItem // указатель на голову
+	Tail *ListItem // указатель на хвост
 	len  int
 }
 
@@ -42,32 +41,41 @@ func (l *list) Back() *ListItem {
 func (l *list) PushFront(v interface{}) *ListItem {
 	n := &ListItem{Value: v}
 
-	if l.Head == nil { // если "головы" нет, значит и списка нет
-		l.Head = n // добавим новый элемент к списку
-	} else { // если есть "голова" то
-		temp := l.Head     // сохраняем предыдущую "голову" в temp
-		l.Head = n         // новый элемент становится "головой" списка
-		n.Next = temp.Prev // меняем указатель prev на next нового списка
+	if l.Head != nil {
+		n.Next = l.Head
+		l.Head.Prev = n
 	}
-	l.len++ // увеличиваем счетчик длины списка
+
+	l.Head = n // новый элемент становится "головой" списка
+	l.len++    // увеличиваем счетчик длины списка
 	return l.Head
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
 	n := &ListItem{Value: v}
-	if l.Head == nil { // если "головы" нет, значит и списка нет
-		l.Head = n // добавим новый элемент к списку
-	} else { // если есть "голова" то
-		l.Tail.Next = n // новый элемент пристегнем к хвосту next
+
+	if l.Head != nil { // если есть "голова" то
+		tempPointer := l.Head
+		for tempPointer.Next != nil {
+			tempPointer = tempPointer.Next
+		}
+		n.Prev = tempPointer
+		tempPointer.Next = n
+		l.Tail = n // новый элемент пристегнем к хвосту next
 	}
-
 	l.len++ // увеличиваем счетчик длины списка
-
 	return l.Tail
 }
 
 func (l *list) Remove(i *ListItem) {
-
+	tempPointer := l.Head
+	for tempPointer != i { // пробегаем до нужного элемента
+		tempPointer = tempPointer.Next
+	}
+	tempPointer2 := tempPointer.Prev
+	tempPointer2.Next = tempPointer.Next
+	tempPointer.Next.Prev = tempPointer2
+	l.len-- // уменьшаем счетчик длины списка
 }
 
 func (l *list) MoveToFront(i *ListItem) {
