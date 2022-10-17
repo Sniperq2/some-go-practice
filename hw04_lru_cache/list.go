@@ -91,12 +91,13 @@ func (l *list) Remove(i *ListItem) {
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-	if i == l.Head {
+	switch {
+	case i == l.Head:
 		return
-	} else if i == l.Tail {
+	case i == l.Tail:
 		l.Tail.Prev.Next = nil
 		l.Tail = l.Tail.Prev
-	} else {
+	default:
 		i.Prev.Next = i.Next
 		i.Next.Prev = i.Prev
 	}
