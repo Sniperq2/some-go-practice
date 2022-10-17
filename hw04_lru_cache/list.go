@@ -47,37 +47,61 @@ func (l *list) PushFront(v interface{}) *ListItem {
 	}
 
 	l.Head = n // новый элемент становится "головой" списка
-	l.len++    // увеличиваем счетчик длины списка
-	return l.Head
+
+	if l.Tail == nil {
+		l.Tail = n
+	}
+
+	l.len++ // увеличиваем счетчик длины списка
+	return n
 }
 
 func (l *list) PushBack(v interface{}) *ListItem {
 	n := &ListItem{Value: v}
 
-	if l.Head != nil { // если есть "голова" то
-		tempPointer := l.Head
-		for tempPointer.Next != nil {
-			tempPointer = tempPointer.Next
-		}
-		n.Prev = tempPointer
-		tempPointer.Next = n
-		l.Tail = n // новый элемент пристегнем к хвосту next
+	n.Prev = l.Tail // указатель в новом элементе указывает на хвост
+
+	if l.Tail != nil {
+		l.Tail.Next = n // новый элемент пристегнем к хвосту next
 	}
+
+	l.Tail = n
+
+	if l.Head == nil { // если нет "головы" то пристегнем элемент к ней
+		l.Head = n
+	}
+
 	l.len++ // увеличиваем счетчик длины списка
-	return l.Tail
+	return n
 }
 
 func (l *list) Remove(i *ListItem) {
-	tempPointer := l.Head
-	for tempPointer != i { // пробегаем до нужного элемента
-		tempPointer = tempPointer.Next
+	next := i.Next // у элемента в списке есть уазатель на следующий элемент
+	prev := i.Prev // и предыдущий
+
+	if prev != nil {
+		prev.Next = next
 	}
-	tempPointer2 := tempPointer.Prev
-	tempPointer2.Next = tempPointer.Next
-	tempPointer.Next.Prev = tempPointer2
+
+	if next != nil {
+		next.Prev = prev
+	}
+
 	l.len-- // уменьшаем счетчик длины списка
 }
 
 func (l *list) MoveToFront(i *ListItem) {
-
+	if i == l.Head {
+		return
+	} else if i == l.Tail {
+		l.Tail.Prev.Next = nil
+		l.Tail = l.Tail.Prev
+	} else {
+		i.Prev.Next = i.Next
+		i.Next.Prev = i.Prev
+	}
+	i.Prev = nil
+	i.Next = l.Head
+	l.Head.Prev = i
+	l.Head = i
 }
