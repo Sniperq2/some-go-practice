@@ -50,7 +50,39 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		// - на логику выталкивания элементов из-за размера очереди
+		// (например: n = 3, добавили 4 элемента - 1й из кэша вытолкнулся);
+		c := NewCache(3)
+
+		c.Set("num1", 100)
+		c.Set("num2", 200)
+		c.Set("num3", 300)
+		c.Set("num4", 400)
+
+		val, ok := c.Get("num1")
+		require.False(t, ok)
+		require.Nil(t, val)
+	})
+
+	t.Run("pure logic 2", func(t *testing.T) {
+		// - на логику выталкивания давно используемых элементов
+		// (например: n = 3, добавили 3 элемента, обратились несколько раз к разным элементам:
+		c := NewCache(3)
+
+		c.Set("num1", 100)
+		c.Set("num2", 200)
+		c.Set("num3", 300)
+		// Обратились в разным элементам
+		c.Get("num3")
+		c.Set("num2", 500)
+		c.Set("num1", 700)
+		c.Get("num2")
+		c.Get("num2")
+		c.Set("num4", 1000)
+		// должен вытолкнуться num3, как редкоиспользуемый
+		val, ok := c.Get("num3")
+		require.False(t, ok)
+		require.Nil(t, val)
 	})
 }
 

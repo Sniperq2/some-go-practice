@@ -42,12 +42,15 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 		value: value,
 	}
 
+	// В связи с таким тестом:
+	// например: n = 3, добавили 4 элемента - 1й из кэша вытолкнулся
+	// переделаем
 	queueLen := l.queue.Len() >= l.capacity
 	if queueLen {
 		l.queue.Remove(l.queue.Back())
+		delete(l.items, (l.queue.Back().Value.(*cacheItem)).key)
 	}
-
-	l.items[key] = l.queue.PushBack(item)
+	l.items[key] = l.queue.PushFront(item)
 
 	return queueLen
 }
