@@ -31,23 +31,26 @@ func Run(tasks []Task, n, m int) error {
 	var errorsCount int
 	var count int
 	for _, result := range tasks {
-		if errorsCount >= m { // если ошибок больше чем допустимо выходим из цикла
-			break
-		}
 		select {
-		case <-errChannel: // читаем из канала ошибок
-			errorsCount++
 		case t <- result:
 			count++
 		}
 	}
 
+	close(t)
 	wg.Wait() // ждем пока выполнятся все таски
-	close(errChannel)
 
-	if errorsCount >= m {
-		return ErrErrorsLimitExceeded
+	for {
+		select {
+		case <-errChannel: // читаем из канала ошибок
+			errorsCount++
+			if errorsCount >= m {
+				return ErrErrorsLimitExceeded
+			}
+		}
+
 	}
+	close(errChannel)
 
 	return nil
 }
