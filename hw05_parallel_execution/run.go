@@ -15,7 +15,18 @@ func Run(tasks []Task, n, m int) error {
 
 	t := make(chan Task)
 	errChannel := make(chan struct{}) // канал для записи ошибок
-	for i := 0; i < n; i++ {          // создаем n горутин
+	var errorsCount int
+	var count int
+
+	go func() {
+		for err := range errChannel { // читаем из канала ошибок
+			if err == struct{}{} {
+				errorsCount++
+			}
+		}
+	}()
+
+	for i := 0; i < n; i++ { // создаем n горутин
 		wg.Add(1)
 		go func(t <-chan Task, errChannel chan<- struct{}) {
 			defer wg.Done() // если горутина выполнилась
@@ -28,8 +39,6 @@ func Run(tasks []Task, n, m int) error {
 		}(t, errChannel)
 	}
 
-	var errorsCount int
-	var count int
 	for _, result := range tasks {
 		select {
 		case t <- result:
@@ -40,17 +49,10 @@ func Run(tasks []Task, n, m int) error {
 	close(t)
 	wg.Wait() // ждем пока выполнятся все таски
 
-	for {
-		select {
-		case <-errChannel: // читаем из канала ошибок
-			errorsCount++
-			if errorsCount >= m {
-				return ErrErrorsLimitExceeded
-			}
-		}
-
-	}
 	close(errChannel)
+	if errorsCount > m {
+		return ErrErrorsLimitExceeded
+	}
 
 	return nil
 }
