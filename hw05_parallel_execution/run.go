@@ -40,7 +40,12 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	for _, result := range tasks {
+		if errorsCount >= m { // если ошибок больше чем допустимо выходим из цикла
+			break
+		}
 		select {
+		case <-errChannel: // читаем из канала ошибок
+			errorsCount++
 		case t <- result:
 			count++
 		}
