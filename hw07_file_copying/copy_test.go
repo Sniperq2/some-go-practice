@@ -1,7 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+)
 
-func TestCopy(t *testing.T) {
-	// Place your code here.
+func TestCopy(_ *testing.T) {
+	Copy("./testdata/input.txt", "out.txt", 0, 100)
 }
