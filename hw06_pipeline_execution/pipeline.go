@@ -9,7 +9,7 @@ type (
 type Stage func(in In) (out Out)
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
-	var out Out = in
+	out := in
 	for _, stage := range stages { // для каждого стейджа
 		makeBi := make(Bi) // создадим промежуточный канал
 		// if ind == 0 { // если первый раз запустили то нет out и надо передать in
