@@ -24,7 +24,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	defer fileFrom.Close()
 
 	fs, err := fileFrom.Stat()
-	if err != nil {
+	if err != nil || fs.Size() == 0 {
 		// * программа может НЕ обрабатывать файлы, у которых неизвестна длина (например, /dev/urandom);
 		return ErrUnsupportedFile
 	}
