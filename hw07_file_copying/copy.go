@@ -13,6 +13,7 @@ import (
 var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
+	ErrWhileClosingFile      = errors.New("error while closing file, data was corrpted")
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
@@ -26,7 +27,12 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
-	defer fileTo.Close()
+
+	defer func() {
+		if closeError := fileTo.Close(); closeError != nil {
+			err = ErrWhileClosingFile
+		}
+	}()
 
 	fs, err := fileFrom.Stat()
 	if err != nil {
