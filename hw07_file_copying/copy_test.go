@@ -18,7 +18,7 @@ func TestCopyFileSizeIsGreater(t *testing.T) {
 }
 
 func TestCopyForUnsupportedFiles(t *testing.T) {
-	if err := Copy("C:\\msys64\\dev\\stderr", "out.txt", 0, 100); err != nil {
+	if err := Copy("/dev/urandom", "out.txt", 0, 100); err != nil {
 		assert.ErrorContains(t, err, "unsupported file", "unsupported file test")
 	}
 }
