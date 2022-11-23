@@ -23,17 +23,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 	defer fileFrom.Close()
 
-	fileTo, err := os.Create(toPath)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		if closeError := fileTo.Close(); closeError != nil {
-			err = ErrWhileClosingFile
-		}
-	}()
-
 	fs, err := fileFrom.Stat()
 	if err != nil {
 		// * программа может НЕ обрабатывать файлы, у которых неизвестна длина (например, /dev/urandom);
@@ -54,6 +43,17 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	if err != nil {
 		return err
 	}
+
+	fileTo, err := os.Create(toPath)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if closeError := fileTo.Close(); closeError != nil {
+			err = ErrWhileClosingFile
+		}
+	}()
 
 	bar := pb.Start64(limit)
 	defer bar.Finish()
