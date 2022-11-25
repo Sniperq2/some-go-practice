@@ -8,15 +8,15 @@ type (
 
 type Stage func(in In) (out Out)
 
-func pipeline(in In, done In, Bi chan interface{}) {
-	defer close(Bi)
+func pipeline(in In, done In, bi chan interface{}) {
+	defer close(bi)
 	for {
 		select {
 		case v, ok := <-in: // читаем из канала in
 			if !ok { // если на входе пусто то и делать нечего
 				return
 			}
-			Bi <- v // в промежуточный канал
+			bi <- v // в промежуточный канал
 		case <-done: // прерываем канал по done
 			return
 		}
