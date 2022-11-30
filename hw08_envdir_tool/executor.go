@@ -14,7 +14,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	cmdRun.Stdin = os.Stdin
 	cmdRun.Stdout = os.Stdout
 
-	additionalEnv := make([]string, 10)
+	additionalEnv := make([]string, 0)
 	for key, value := range env {
 		additionalEnv = append(additionalEnv, fmt.Sprintf("%s=%s", key, value.Value))
 	}
