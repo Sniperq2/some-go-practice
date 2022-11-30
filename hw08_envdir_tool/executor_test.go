@@ -1,7 +1,14 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func TestRunCmd(t *testing.T) {
-	// Place your code here
+	env, err := ReadDir("./testdata/env")
+	require.NoError(t, err)
+
+	require.Equal(t, -1, RunCmd([]string{"wdsf"}, env))
 }
