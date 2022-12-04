@@ -60,7 +60,7 @@ func ReadDir(dir string) (Environment, error) {
 	for _, i := range infos {
 		file, err := os.Open(path.Join(dir, i))
 		if err != nil {
-			return nil, fmt.Errorf("")
+			return nil, fmt.Errorf("could not open file %s", i)
 		}
 
 		resultValue, err := readParam(file)
