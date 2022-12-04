@@ -27,7 +27,7 @@ func readParam(handle io.Reader) (string, error) {
 		if errors.Is(err, io.EOF) {
 			return "", nil
 		}
-		return "", fmt.Errorf("Other error, but not end of file")
+		return "", fmt.Errorf("other error, but not end of file")
 	}
 	value = []byte(strings.TrimRight(string(value), " "))
 	value = bytes.ReplaceAll(value, []byte{0x00}, []byte("\n"))
