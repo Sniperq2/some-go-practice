@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 )
@@ -14,12 +13,16 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	cmdRun.Stdin = os.Stdin
 	cmdRun.Stdout = os.Stdout
 
-	additionalEnv := make([]string, 0)
 	for key, value := range env {
-		additionalEnv = append(additionalEnv, fmt.Sprintf("%s=%s", key, value.Value))
+		if len(value.Value) == 0 {
+			os.Unsetenv(key)
+			continue
+		}
+
+		os.Setenv(key, value.Value)
 	}
 
-	cmdRun.Env = append(os.Environ(), additionalEnv...)
+	cmdRun.Env = os.Environ()
 
 	if err := cmdRun.Run(); err != nil {
 		return 1

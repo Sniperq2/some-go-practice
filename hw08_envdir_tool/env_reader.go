@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -16,6 +18,21 @@ type Environment map[string]EnvValue
 type EnvValue struct {
 	Value      string
 	NeedRemove bool
+}
+
+func readParam(handle io.Reader) (string, error) {
+	reader := bufio.NewReader(handle)
+	value, _, err := reader.ReadLine()
+	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return "", nil
+		}
+		return "", fmt.Errorf("Other error, but not end of file")
+	}
+	value = []byte(strings.TrimRight(string(value), " "))
+	value = bytes.ReplaceAll(value, []byte{0x00}, []byte("\n"))
+
+	return string(value), nil
 }
 
 // ReadDir reads a specified directory and returns map of env variables.
@@ -45,18 +62,9 @@ func ReadDir(dir string) (Environment, error) {
 		if err != nil {
 			return nil, fmt.Errorf("")
 		}
-		reader := bufio.NewReader(file)
 
-		value, _, err := reader.ReadLine()
+		resultValue, err := readParam(file)
 		if err != nil {
-			return nil, fmt.Errorf("")
-		}
-
-		outValue := string(value)
-		outValue = strings.Trim(outValue, " \t")
-		resultValue := string(bytes.ReplaceAll([]byte(outValue), []byte{0x00}, []byte("\n")))
-
-		if len(resultValue) == 0 {
 			continue
 		}
 
@@ -65,7 +73,6 @@ func ReadDir(dir string) (Environment, error) {
 			NeedRemove: false,
 		}
 		envList[i] = newValue
-		fmt.Printf("%#v", envList)
 	}
 	return envList, nil
 }
