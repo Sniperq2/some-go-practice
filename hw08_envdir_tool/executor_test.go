@@ -15,7 +15,8 @@ func TestRunCmd(t *testing.T) {
 		"HELLO": EnvValue{
 			Value:      "\"hello\"",
 			NeedRemove: false,
-		}}
+		},
+	}
 
 	require.Equal(t, -1, RunCmd([]string{"wdsf"}, env))
 }
