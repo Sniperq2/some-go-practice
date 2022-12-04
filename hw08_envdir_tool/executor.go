@@ -25,7 +25,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	cmdRun.Env = os.Environ()
 
 	if err := cmdRun.Run(); err != nil {
-		return 1
+		return -1
 	}
 
 	return cmdRun.ProcessState.ExitCode()
