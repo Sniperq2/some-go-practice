@@ -63,6 +63,10 @@ func ReadDir(dir string) (Environment, error) {
 			return nil, fmt.Errorf("could not open file %s", i)
 		}
 
+		if strings.Contains(i, "=") {
+			continue
+		}
+
 		resultValue, err := readParam(file)
 		if err != nil {
 			continue
