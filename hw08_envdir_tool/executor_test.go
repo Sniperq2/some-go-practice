@@ -7,8 +7,15 @@ import (
 )
 
 func TestRunCmd(t *testing.T) {
-	env, err := ReadDir("./testdata/env")
-	require.NoError(t, err)
+	env := Environment{
+		"BAR": EnvValue{
+			Value:      "bar",
+			NeedRemove: false,
+		},
+		"HELLO": EnvValue{
+			Value:      "\"hello\"",
+			NeedRemove: false,
+		}}
 
 	require.Equal(t, -1, RunCmd([]string{"wdsf"}, env))
 }
