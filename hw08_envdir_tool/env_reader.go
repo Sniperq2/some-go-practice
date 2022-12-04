@@ -69,7 +69,7 @@ func ReadDir(dir string) (Environment, error) {
 
 		resultValue, err := readParam(file)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("could not read file with env variable %s", i)
 		}
 
 		newValue := EnvValue{
