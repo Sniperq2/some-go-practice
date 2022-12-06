@@ -29,7 +29,7 @@ func readParam(handle io.Reader) (string, error) {
 		}
 		return "", fmt.Errorf("other error, but not end of file")
 	}
-	value = []byte(strings.TrimRight(string(value), " \t"))
+	value = []byte(strings.TrimRight(string(value), " \t\x00"))
 	value = bytes.ReplaceAll(value, []byte{0x00}, []byte("\n"))
 
 	return string(value), nil
