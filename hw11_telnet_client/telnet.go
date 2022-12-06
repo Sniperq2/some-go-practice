@@ -45,16 +45,14 @@ func (t *telnetClient) Close() error {
 }
 
 func (t *telnetClient) Send() error {
-	_, err := io.Copy(t.conn, t.in)
-	if err != nil {
+	if _, err := io.Copy(t.conn, t.in); err != nil {
 		return fmt.Errorf("could not send data %s to the server %s", t.in, t.address)
 	}
 	return nil
 }
 
 func (t *telnetClient) Receive() error {
-	_, err := io.Copy(t.out, t.conn)
-	if err != nil {
+	if _, err := io.Copy(t.out, t.conn); err != nil {
 		return fmt.Errorf("could not receive data from the server %s", t.address)
 	}
 	return nil
