@@ -1,4 +1,4 @@
-module github.com/Sniperq2/hw08_envdir_tool
+module github.com/Sniperq2/some-go-practice/hw08_envdir_tool
 
 go 1.16
 
