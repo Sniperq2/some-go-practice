@@ -8,9 +8,7 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-var (
-	timeout string
-)
+var timeout string
 
 func main() {
 	flag.StringVar(&timeout, "timeout", "10s", "timeout")
