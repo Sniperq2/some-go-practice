@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net"
 	"os"
@@ -8,12 +9,10 @@ import (
 	"sync"
 	"syscall"
 	"time"
-
-	flag "github.com/spf13/pflag"
 )
 
 var (
-	timeout string
+	timeout time.Duration
 	wg      *sync.WaitGroup
 )
 
@@ -62,7 +61,7 @@ func writerLoop(t *TelnetClient, done chan os.Signal) {
 }
 
 func main() {
-	flag.StringVar(&timeout, "timeout", "10s", "timeout")
+	flag.DurationVar(&timeout, "timeout", 10*time.Second, "timeout")
 	flag.Parse()
 	host := os.Args[2]
 	port := os.Args[3]
@@ -73,12 +72,7 @@ func main() {
 		log.Fatalf("Please set port")
 	}
 
-	durationTimeout, err := time.ParseDuration(timeout)
-	if err != nil {
-		log.Fatalf("wrong duration")
-	}
-
-	telnetClient := NewTelnetClient(net.JoinHostPort(host, port), durationTimeout, os.Stdin, os.Stdout)
+	telnetClient := NewTelnetClient(net.JoinHostPort(host, port), timeout, os.Stdin, os.Stdout)
 	if err := telnetClient.Connect(); err != nil {
 		log.Fatalln(err)
 	}
