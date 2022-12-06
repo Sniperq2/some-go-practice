@@ -27,6 +27,7 @@ func readerLoop(t *TelnetClient, done chan os.Signal) {
 		default:
 			err := (*t).Receive()
 			if err != nil {
+				log.Println(err)
 				return
 			}
 		}
@@ -43,6 +44,7 @@ func writerLoop(t *TelnetClient, done chan os.Signal) {
 		default:
 			err := (*t).Send()
 			if err != nil {
+				log.Println(err)
 				return
 			}
 		}
@@ -71,11 +73,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	//сигнал SIGINT
+	// сигнал SIGINT
 	notifySignal := make(chan os.Signal, 1)
 	signal.Notify(notifySignal, syscall.SIGINT)
 
-	//а тут, Ctrl+D
+	// а тут, Ctrl+D
 	notifyCtrlD := make(chan os.Signal, 1)
 	signal.Notify(notifyCtrlD, syscall.SIGQUIT)
 
