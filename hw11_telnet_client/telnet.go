@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"io"
+	"net"
 	"time"
 )
 
@@ -12,10 +14,48 @@ type TelnetClient interface {
 	Receive() error
 }
 
+type telnetClient struct {
+	address string
+	timeout time.Duration
+	in      io.ReadCloser
+	out     io.Writer
+	conn    net.Conn
+}
+
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
-	// Place your code here.
+	return &telnetClient{
+		address: address,
+		timeout: timeout,
+		in:      in,
+		out:     out,
+	}
+}
+
+func (t *telnetClient) Connect() error {
+	var err error
+	t.conn, err = net.DialTimeout("tcp", t.address, t.timeout)
+	if err != nil {
+		return fmt.Errorf("could not connect to the server %s", t.address)
+	}
 	return nil
 }
 
-// Place your code here.
-// P.S. Author's solution takes no more than 50 lines.
+func (t *telnetClient) Close() error {
+	return t.conn.Close()
+}
+
+func (t *telnetClient) Send() error {
+	_, err := io.Copy(t.conn, t.in)
+	if err != nil {
+		return fmt.Errorf("could not send data %s to the server %s", t.in, t.address)
+	}
+	return nil
+}
+
+func (t *telnetClient) Receive() error {
+	_, err := io.Copy(t.out, t.conn)
+	if err != nil {
+		return fmt.Errorf("could not receive data from the server %s", t.address)
+	}
+	return nil
+}
