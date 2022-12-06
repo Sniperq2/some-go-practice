@@ -21,7 +21,12 @@ func readerLoop(t *TelnetClient, done chan os.Signal) {
 	defer wg.Done()
 	for {
 		select {
-		case <-done:
+		case d := <-done:
+			if d == syscall.SIGQUIT {
+				(*t).Close()
+				log.Println("Bye-bye")
+				return
+			}
 			log.Println("Bye-bye")
 			return
 		default:
@@ -38,7 +43,12 @@ func writerLoop(t *TelnetClient, done chan os.Signal) {
 	defer wg.Done()
 	for {
 		select {
-		case <-done:
+		case d := <-done:
+			if d == syscall.SIGQUIT {
+				(*t).Close()
+				log.Println("Bye-bye")
+				return
+			}
 			log.Println("Bye-bye")
 			return
 		default:
@@ -73,20 +83,26 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	// сигнал SIGINT
 	notifySignal := make(chan os.Signal, 1)
-	signal.Notify(notifySignal, syscall.SIGINT)
-
-	// а тут, Ctrl+D
-	notifyCtrlD := make(chan os.Signal, 1)
-	signal.Notify(notifyCtrlD, syscall.SIGQUIT)
+	signal.Notify(notifySignal, syscall.SIGINT, syscall.SIGQUIT)
 
 	wg = &sync.WaitGroup{}
 	wg.Add(2)
 
-	go readerLoop(&telnetClient, notifyCtrlD)
-	go writerLoop(&telnetClient, notifyCtrlD)
-	<-notifySignal
+	go readerLoop(&telnetClient, notifySignal)
+	go writerLoop(&telnetClient, notifySignal)
+
+	go func() {
+		for {
+			switch <-notifySignal {
+			case syscall.SIGINT:
+				return
+
+			case syscall.SIGQUIT:
+				return
+			}
+		}
+	}()
 	wg.Wait()
 
 }
