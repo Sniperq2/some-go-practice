@@ -1,4 +1,4 @@
-module github.com/Sniperq2/hw11_telnet_client
+module github.com/Sniperq2/some-go-practice/hw11_telnet_client
 
 go 1.16
 
