@@ -12,6 +12,12 @@ import (
 	"strings"
 )
 
+var (
+	ErrOtherFsError     = errors.New("other error, but not end of file")
+	ErrSetDirectory     = errors.New("please set directory")
+	ErrNoDirectoryFound = errors.New("no directory found")
+)
+
 type Environment map[string]EnvValue
 
 // EnvValue helps to distinguish between empty files and files with the first empty line.
@@ -27,7 +33,7 @@ func readParam(handle io.Reader) (string, error) {
 		if errors.Is(err, io.EOF) {
 			return "", nil
 		}
-		return "", fmt.Errorf("other error, but not end of file")
+		return "", ErrOtherFsError
 	}
 	value = []byte(strings.TrimRight(string(value), " \t\x00"))
 	value = bytes.ReplaceAll(value, []byte{0x00}, []byte("\n"))
@@ -39,11 +45,11 @@ func readParam(handle io.Reader) (string, error) {
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
 	if len(dir) == 0 {
-		return nil, fmt.Errorf("please set directory")
+		return nil, ErrSetDirectory
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("no directory found")
+		return nil, ErrNoDirectoryFound
 	}
 
 	infos := make([]string, 0, len(entries))
