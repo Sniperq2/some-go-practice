@@ -15,7 +15,8 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	cmdRun.Stdout = os.Stdout
 
 	for key, value := range env {
-		if value.NeedRemove {
+		if len(value.Value) == 0 {
+			value.NeedRemove = true
 			os.Unsetenv(key)
 			continue
 		}
