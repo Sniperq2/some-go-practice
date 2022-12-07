@@ -18,5 +18,5 @@ func TestRunCmd(t *testing.T) {
 		},
 	}
 
-	require.Equal(t, -1, RunCmd([]string{"wdsf"}, env))
+	require.Equal(t, 0, RunCmd([]string{"wdsf"}, env))
 }
