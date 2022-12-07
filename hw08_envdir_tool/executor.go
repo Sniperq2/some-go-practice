@@ -24,16 +24,14 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 	}
 
 	cmdRun.Env = os.Environ()
-
-	if err := cmdRun.Start(); err != nil {
-		return -1
-	}
-
-	var comandErrr *exec.ExitError
-	retCode := 0
-	if err := cmdRun.Wait(); err != nil {
-		if errors.As(err, &comandErrr) {
-			retCode = comandErrr.ExitCode()
+	var commandErr *exec.ExitError
+	retCode := 0 // если запуск пройдёт гладко, то так и останется 0
+	if err := cmdRun.Run(); err != nil {
+		// Из документации:
+		// If the command starts but does not complete successfully, the error is of type *ExitError.
+		if errors.As(err, &commandErr) {
+			// нам сама ошибка не нуждан - только ExitCode
+			retCode = commandErr.ExitCode()
 		}
 	}
 	return retCode
