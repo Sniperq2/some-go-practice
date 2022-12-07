@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
+	"io/fs"
 	"os"
 	"path"
 	"strings"
@@ -51,7 +51,9 @@ func ReadDir(dir string) (Environment, error) {
 	for _, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {
-			log.Fatalf("errror rading files")
+			if errors.Is(err, fs.ErrNotExist) {
+				return nil, os.ErrNotExist
+			}
 		}
 		infos = append(infos, info.Name())
 	}
