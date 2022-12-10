@@ -88,7 +88,7 @@ func ReadDir(dir string) (Environment, error) {
 
 		newValue := EnvValue{
 			Value:      resultValue,
-			NeedRemove: false,
+			NeedRemove: len(resultValue) == 0,
 		}
 		envList[i] = newValue
 	}
