@@ -34,7 +34,7 @@ type Rules []Rule
 // by key and value with ":" separator
 // ex. `validate:"min:18|max:50"`
 // rulesSep - separator between rules, ex. |
-// ruleSep - separator between rule and value, ex. :
+// ruleSep - separator between rule and value, ex. :.
 func ParsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
 	rulesSoup := strings.Split(tag, rulesSep)
 
