@@ -23,6 +23,42 @@ func (v ValidationErrors) Error() string {
 	panic("implement me")
 }
 
+type Rule struct {
+	Name  string
+	Value string
+}
+
+type Rules []Rule
+
+// Here we split rules by "|" seprator and next split each rule
+// by key and value with ":" separator
+// ex. `validate:"min:18|max:50"`
+// rulesSep - separator between rules, ex. |
+// ruleSep - separator between rule and value, ex. :
+func ParsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
+	rulesSoup := strings.Split(tag, rulesSep)
+
+	rules := make(Rules, 0)
+	for _, value := range rulesSoup {
+		rule := strings.SplitN(value, ruleSep, 2)
+
+		if len(rule) != 2 {
+			return nil, errors.New("wrong type of rule")
+		}
+
+		rules = append(rules, Rule{
+			Name:  rule[0],
+			Value: rule[1],
+		})
+	}
+
+	if len(rules) == 0 {
+		return nil, errors.New("no rules found")
+	}
+
+	return rules, nil
+}
+
 func Validate(v interface{}) error {
 	structToValidate := reflect.TypeOf(v)
 	if structToValidate.Kind() != reflect.Struct {
@@ -38,14 +74,9 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		// Here we split rules by "|" seprator and next split each rule
-		// by key and value with ":" separator
-		// ex. `validate:"min:18|max:50"`
-		for _, value := range strings.Split(tag, rulesSplitter) {
-			rule := strings.SplitN(value, ruleNameValueSplitter, 2)
-			if len(rule) != 2 {
-				return errors.New("wrong type of rule")
-			}
+		_, err := ParsingRules(tag, rulesSplitter, ruleNameValueSplitter)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
