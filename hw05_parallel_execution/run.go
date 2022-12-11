@@ -16,7 +16,6 @@ func Run(tasks []Task, n, m int) error {
 	t := make(chan Task)
 	errChannel := make(chan struct{}) // канал для записи ошибок
 	var errorsCount int
-	var count int
 
 	go func() {
 		for err := range errChannel { // читаем из канала ошибок
@@ -43,12 +42,7 @@ func Run(tasks []Task, n, m int) error {
 		if errorsCount >= m { // если ошибок больше чем допустимо выходим из цикла
 			break
 		}
-		select {
-		case <-errChannel: // читаем из канала ошибок
-			errorsCount++
-		case t <- result:
-			count++
-		}
+		t <- result
 	}
 
 	close(t)
