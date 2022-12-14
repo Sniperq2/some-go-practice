@@ -2,7 +2,9 @@ package hw09structvalidator
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -59,12 +61,46 @@ func ParsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
 	return rules, nil
 }
 
+func inSlice(haystack []string, needle string) bool {
+	for _, item := range haystack {
+		if item == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func stringTypeConstraint(rules Rules, value reflect.Value) error {
+	strValue := value.String()
+	for _, rule := range rules {
+		switch rule.Name {
+		case "len":
+			lengthValue, err := strconv.Atoi(rule.Value)
+
+			if err != nil {
+				return fmt.Errorf("wrong rule %s - validation failed", strValue)
+			}
+
+			if lengthValue != len(strValue) {
+				return fmt.Errorf("bad length of %s - validation failed", strValue)
+			}
+		case "in":
+			inSplitted := strings.Split(rule.Value, ",")
+			if !inSlice(inSplitted, strValue) {
+				return fmt.Errorf("no \"in\" value found in %s - validation vailed", strValue)
+			}
+		}
+	}
+	return nil
+}
+
 func Validate(v interface{}) error {
 	structToValidate := reflect.TypeOf(v)
 	if structToValidate.Kind() != reflect.Struct {
 		return errors.New("not a struct")
 	}
 
+	var validationErrors ValidationErrors
 	for i := 0; i < structToValidate.NumField(); i++ {
 		field := structToValidate.Field(i)
 		tag := field.Tag.Get(tagValidateName)
@@ -74,10 +110,27 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		_, err := ParsingRules(tag, rulesSplitter, ruleNameValueSplitter)
+		rules, err := ParsingRules(tag, rulesSplitter, ruleNameValueSplitter)
 		if err != nil {
 			return err
 		}
+
+		value := reflect.ValueOf(v).Field(i)
+
+		switch value.Kind() {
+		case reflect.String:
+			if err := stringTypeConstraint(rules, value); err != nil {
+				validationErrors = append(validationErrors, ValidationError{
+					Field: value.String(),
+					Err:   err,
+				})
+			}
+		}
 	}
+
+	if len(validationErrors) > 0 {
+		return validationErrors
+	}
+
 	return nil
 }
