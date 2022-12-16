@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -89,6 +90,17 @@ func stringTypeConstraint(rules Rules, value reflect.Value) error {
 			if !inSlice(inSplitted, strValue) {
 				return fmt.Errorf("no \"in\" value found in %s - validation vailed", strValue)
 			}
+		case "regexp":
+			re, err := regexp.Compile(rule.Value)
+			if err != nil {
+				return fmt.Errorf("could not compile regexp value %s - validation vailed", strValue)
+			}
+
+			if !re.MatchString(strValue) {
+				return fmt.Errorf("wrong regular expression %s - validation vailed", strValue)
+			}
+		default:
+			return fmt.Errorf("unsupported validation rule %s - validation vailed", strValue)
 		}
 	}
 	return nil
