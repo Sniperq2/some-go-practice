@@ -71,6 +71,16 @@ func inSlice(haystack []string, needle string) bool {
 	return false
 }
 
+// Because we are using go 1.16 I could not use generics
+func inSliceInt(haystack []int, needle int64) bool {
+	for _, item := range haystack {
+		if int64(item) == needle {
+			return true
+		}
+	}
+	return false
+}
+
 func stringTypeConstraint(rules Rules, value reflect.Value) error {
 	strValue := value.String()
 	for _, rule := range rules {
@@ -128,6 +138,22 @@ func validateMinMax(rules Rules, value reflect.Value) error {
 			if intValue > int64(max) {
 				return fmt.Errorf("value %d is greated than constraint - validation failed", intValue)
 			}
+		case "in":
+			inValues := make([]int, 0)
+			inSplit := strings.Split(rule.Value, ",")
+			for _, item := range inSplit {
+				val, err := strconv.Atoi(item)
+				if err != nil {
+					return fmt.Errorf("wrong rule %d - validation failed", intValue)
+				}
+
+				inValues = append(inValues, val)
+			}
+			if !inSliceInt(inValues, intValue) {
+				return fmt.Errorf("value %d not found in rule - validation failed", intValue)
+			}
+		default:
+			return fmt.Errorf("unsupported validation rule %d - validation vailed", intValue)
 		}
 	}
 	return nil
