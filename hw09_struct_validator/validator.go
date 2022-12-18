@@ -71,7 +71,7 @@ func inSlice(haystack []string, needle string) bool {
 	return false
 }
 
-// Because we are using go 1.16 I could not use generics
+// Because we are using go 1.16 I could not use generics.
 func inSliceInt(haystack []int, needle int64) bool {
 	for _, item := range haystack {
 		if int64(item) == needle {
@@ -169,7 +169,7 @@ func Validate(v interface{}) error {
 		field := structToValidate.Field(i)
 		tag := field.Tag.Get(tagValidateName)
 
-		// skip fields without "validate" tag
+		// skip fields without "validate" tag.
 		if len(tag) == 0 {
 			continue
 		}
@@ -181,7 +181,7 @@ func Validate(v interface{}) error {
 
 		value := reflect.ValueOf(v).Field(i)
 
-		switch value.Kind() {
+		switch value.Kind() { // nolint: exhaustive
 		case reflect.String:
 			if err := stringTypeConstraint(rules, value); err != nil {
 				validationErrors = append(validationErrors, ValidationError{
