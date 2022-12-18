@@ -87,7 +87,6 @@ func stringTypeConstraint(rules Rules, value reflect.Value) error {
 		switch rule.Name {
 		case "len":
 			lengthValue, err := strconv.Atoi(rule.Value)
-
 			if err != nil {
 				return fmt.Errorf("wrong rule %s - validation failed", strValue)
 			}
