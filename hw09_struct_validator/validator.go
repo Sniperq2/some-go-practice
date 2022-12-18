@@ -106,6 +106,33 @@ func stringTypeConstraint(rules Rules, value reflect.Value) error {
 	return nil
 }
 
+func validateMinMax(rules Rules, value reflect.Value) error {
+	intValue := value.Int()
+	for _, rule := range rules {
+		switch rule.Name {
+		case "min":
+			min, err := strconv.Atoi(rule.Value)
+			if err != nil {
+				return fmt.Errorf("wrong rule %d - validation of failed", intValue)
+			}
+
+			if intValue < int64(min) {
+				return fmt.Errorf("value %d is lesser than constraint validation failed", intValue)
+			}
+		case "max":
+			max, err := strconv.Atoi(rule.Value)
+			if err != nil {
+				return fmt.Errorf("wrong rule %d - validation of failed", intValue)
+			}
+
+			if intValue > int64(max) {
+				return fmt.Errorf("value %d is greated than constraint - validation failed", intValue)
+			}
+		}
+	}
+	return nil
+}
+
 func Validate(v interface{}) error {
 	structToValidate := reflect.TypeOf(v)
 	if structToValidate.Kind() != reflect.Struct {
@@ -132,6 +159,13 @@ func Validate(v interface{}) error {
 		switch value.Kind() {
 		case reflect.String:
 			if err := stringTypeConstraint(rules, value); err != nil {
+				validationErrors = append(validationErrors, ValidationError{
+					Field: value.String(),
+					Err:   err,
+				})
+			}
+		case reflect.Int:
+			if err := validateMinMax(rules, value); err != nil {
 				validationErrors = append(validationErrors, ValidationError{
 					Field: value.String(),
 					Err:   err,
