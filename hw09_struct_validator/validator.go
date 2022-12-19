@@ -23,7 +23,7 @@ const (
 type ValidationErrors []ValidationError
 
 func (v ValidationErrors) Error() string {
-	panic("implement me")
+	return fmt.Sprintf("validation failed - number of errors is/are %d", len(v))
 }
 
 type Rule struct {
@@ -164,6 +164,7 @@ func Validate(v interface{}) error {
 		return errors.New("not a struct")
 	}
 
+	typeValue := reflect.ValueOf(v).Type()
 	var validationErrors ValidationErrors
 	for i := 0; i < structToValidate.NumField(); i++ {
 		field := structToValidate.Field(i)
@@ -180,20 +181,20 @@ func Validate(v interface{}) error {
 		}
 
 		value := reflect.ValueOf(v).Field(i)
-
+		fieldValue := typeValue.Field(i)
 		switch value.Kind() { // nolint: exhaustive
 		case reflect.String:
 			if err := stringTypeConstraint(rules, value); err != nil {
 				validationErrors = append(validationErrors, ValidationError{
-					Field: value.String(),
-					Err:   err,
+					Field: fieldValue.Name,
+					Err:   fmt.Errorf("validation failed - %w", err),
 				})
 			}
 		case reflect.Int:
 			if err := validateMinMax(rules, value); err != nil {
 				validationErrors = append(validationErrors, ValidationError{
-					Field: value.String(),
-					Err:   err,
+					Field: fieldValue.Name,
+					Err:   fmt.Errorf("validation failed - %w", err),
 				})
 			}
 		}

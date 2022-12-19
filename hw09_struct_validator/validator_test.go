@@ -2,6 +2,7 @@ package hw09structvalidator
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -13,7 +14,7 @@ type UserRole string
 // Test the function on different structures and other types.
 type (
 	User struct {
-		ID     string `json:"id" validate:"len:36"`
+		ID     string `json:"id" validate:"len:6"`
 		Name   string
 		Age    int      `validate:"min:18|max:50"`
 		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
@@ -45,7 +46,7 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			User{
-				ID:     "76584923749506375896936540158364856",
+				ID:     "765849",
 				Age:    18,
 				Email:  "admin@admin.com",
 				Role:   UserRole("admin"),
@@ -66,9 +67,15 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			err := Validate(tt.in)
-			if err == nil {
-				assert.Equal(t, err, tt.expectedErr, "validated")
+			if err != nil {
+				if validationError, ok := err.(ValidationErrors); ok {
+					expectedError := tt.expectedErr.(ValidationErrors)
+					assert.True(t, len(expectedError) == len(validationError), "amount of errors are right")
+				} else {
+					assert.True(t, errors.Is(err, tt.expectedErr), "same error")
+				}
 			}
+			assert.Equal(t, err, tt.expectedErr, "validated")
 		})
 	}
 }
