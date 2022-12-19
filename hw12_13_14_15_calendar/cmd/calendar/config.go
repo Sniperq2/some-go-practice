@@ -5,16 +5,13 @@ package main
 // при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
 	Logger LoggerConf
-	// TODO
 }
 
 type LoggerConf struct {
-	Level string
-	// TODO
+	Level    string `yaml: level`
+	Filename string `yaml: filename`
 }
 
 func NewConfig() Config {
 	return Config{}
 }
-
-// TODO
