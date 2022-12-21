@@ -38,7 +38,7 @@ type Rules []Rule
 // ex. `validate:"min:18|max:50"`
 // rulesSep - separator between rules, ex. |
 // ruleSep - separator between rule and value, ex. :.
-func ParsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
+func parsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
 	rulesSoup := strings.Split(tag, rulesSep)
 
 	rules := make(Rules, 0)
@@ -175,7 +175,7 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		rules, err := ParsingRules(tag, rulesSplitter, ruleNameValueSplitter)
+		rules, err := parsingRules(tag, rulesSplitter, ruleNameValueSplitter)
 		if err != nil {
 			return err
 		}
