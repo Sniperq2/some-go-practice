@@ -39,10 +39,8 @@ type Rules []Rule
 // rulesSep - separator between rules, ex. |
 // ruleSep - separator between rule and value, ex. :.
 func parsingRules(tag string, rulesSep string, ruleSep string) (Rules, error) {
-	rulesSoup := strings.Split(tag, rulesSep)
-
 	rules := make(Rules, 0)
-	for _, value := range rulesSoup {
+	for _, value := range strings.Split(tag, rulesSep) {
 		rule := strings.SplitN(value, ruleSep, 2)
 
 		if len(rule) != 2 {
