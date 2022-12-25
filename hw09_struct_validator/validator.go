@@ -9,6 +9,17 @@ import (
 	"strings"
 )
 
+var (
+	ErrValueIsGreater         = errors.New("is greated than constraint")
+	ErrUnsupportedRule        = errors.New("unsupported validation rule")
+	ErrWrongRule              = errors.New("wrong rule")
+	ErrBadLengthOf            = errors.New("bad length of")
+	ErrNoInValueFound         = errors.New("no \"in\" value found")
+	ErrCouldNotCompileRegExp  = errors.New("could not compile regexp value")
+	ErrWrongRegularExpression = errors.New("wrong regular expression")
+	ErrValueIsLesser          = errors.New("is lesser than constraint")
+)
+
 type ValidationError struct {
 	Field string
 	Err   error
@@ -76,28 +87,28 @@ func stringTypeConstraint(rules Rules, value reflect.Value) error {
 		case "len":
 			lengthValue, err := strconv.Atoi(rule.Value)
 			if err != nil {
-				return fmt.Errorf("wrong rule %s - validation failed", strValue)
+				return fmt.Errorf("%w %s - validation failed", ErrWrongRule, strValue)
 			}
 
 			if lengthValue != len(strValue) {
-				return fmt.Errorf("bad length of %s - validation failed", strValue)
+				return fmt.Errorf("%w %s - validation failed", ErrBadLengthOf, strValue)
 			}
 		case "in":
 			inSplitted := strings.Split(rule.Value, ",")
 			if !inSlice(inSplitted, strValue) {
-				return fmt.Errorf("no \"in\" value found in %s - validation vailed", strValue)
+				return fmt.Errorf("%w in %s - validation vailed", ErrNoInValueFound, strValue)
 			}
 		case "regexp":
 			re, err := regexp.Compile(rule.Value)
 			if err != nil {
-				return fmt.Errorf("could not compile regexp value %s - validation vailed", strValue)
+				return fmt.Errorf("%w %s - validation vailed", ErrCouldNotCompileRegExp, strValue)
 			}
 
 			if !re.MatchString(strValue) {
-				return fmt.Errorf("wrong regular expression %s - validation vailed", strValue)
+				return fmt.Errorf("%w %s - validation vailed", ErrWrongRegularExpression, strValue)
 			}
 		default:
-			return fmt.Errorf("unsupported validation rule %s - validation vailed", strValue)
+			return fmt.Errorf("%w %s - validation vailed", ErrUnsupportedRule, strValue)
 		}
 	}
 	return nil
@@ -110,27 +121,27 @@ func validateMinMax(rules Rules, value reflect.Value) error {
 		case "min":
 			min, err := strconv.Atoi(rule.Value)
 			if err != nil {
-				return fmt.Errorf("wrong rule %d - validation of failed", intValue)
+				return fmt.Errorf("%w %d - validation failed", ErrWrongRule, intValue)
 			}
 
 			if intValue < int64(min) {
-				return fmt.Errorf("value %d is lesser than constraint validation failed", intValue)
+				return fmt.Errorf("%d, %w - validation failed", intValue, ErrValueIsLesser)
 			}
 		case "max":
 			max, err := strconv.Atoi(rule.Value)
 			if err != nil {
-				return fmt.Errorf("wrong rule %d - validation of failed", intValue)
+				return fmt.Errorf("%w, %d - validation failed", ErrWrongRule, intValue)
 			}
 
 			if intValue > int64(max) {
-				return fmt.Errorf("value %d is greated than constraint - validation failed", intValue)
+				return fmt.Errorf("%d, %w - validation failed", intValue, ErrValueIsGreater)
 			}
 		case "in":
 			var flag bool = false
 			for _, item := range strings.Split(rule.Value, ",") {
 				val, err := strconv.Atoi(item)
 				if err != nil {
-					return fmt.Errorf("wrong rule %d - validation failed", intValue)
+					return fmt.Errorf("%w %d - validation failed", ErrWrongRule, intValue)
 				}
 
 				if int64(val) != intValue {
@@ -142,7 +153,7 @@ func validateMinMax(rules Rules, value reflect.Value) error {
 				return fmt.Errorf("value %d not found in rule - validation failed", intValue)
 			}
 		default:
-			return fmt.Errorf("unsupported validation rule %d - validation vailed", intValue)
+			return fmt.Errorf("%w %d - validation vailed", ErrUnsupportedRule, intValue)
 		}
 	}
 	return nil
