@@ -71,6 +71,10 @@ func TestValidate(t *testing.T) {
 				if validationError, ok := err.(ValidationErrors); ok {
 					expectedError := tt.expectedErr.(ValidationErrors)
 					assert.True(t, len(expectedError) == len(validationError), "amount of errors are right")
+					for index, errorItem := range validationError {
+						expected := expectedError[index]
+						assert.True(t, errors.Is(errorItem.Err, expected.Err), "error is right")
+					}
 				} else {
 					assert.True(t, errors.Is(err, tt.expectedErr), "same error")
 				}
