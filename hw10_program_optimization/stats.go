@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
@@ -48,13 +47,9 @@ func getUsers(r io.Reader) (result users, err error) {
 func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 
+	domainName := fmt.Sprintf(".%s", domain)
 	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
-		if err != nil {
-			return nil, err
-		}
-
-		if matched {
+		if strings.HasSuffix(user.Email, domainName) {
 			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
 			num++
 			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
