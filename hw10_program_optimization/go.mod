@@ -1,4 +1,4 @@
-module github.com/Sniperq2/hw10_program_optimization
+module github.com/Sniperq2/some-go-practice/hw10_program_optimization
 
 go 1.16
 
