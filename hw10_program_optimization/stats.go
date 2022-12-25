@@ -41,6 +41,11 @@ func getUsers(r io.Reader) (result users, err error) {
 		result[counter] = user
 		counter++
 	}
+
+	if err = scanner.Err(); err != nil {
+		return
+	}
+
 	return
 }
 
