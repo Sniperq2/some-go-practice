@@ -10,13 +10,13 @@ import (
 )
 
 type User struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-	Phone    string
-	Password string
-	Address  string
+	ID       int    `json:"Id"`
+	Name     string `json:"Name"`
+	Username string `json:"Username"`
+	Email    string `json:"Email"`
+	Phone    string `json:"Phone"`
+	Password string `json:"Password"`
+	Address  string `json:"Address"`
 }
 
 type DomainStat map[string]int
