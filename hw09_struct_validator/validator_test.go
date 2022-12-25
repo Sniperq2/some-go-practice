@@ -1,4 +1,4 @@
-package hw09structvalidator //nolint: structcheck
+package hw09structvalidator //nolint:structcheck
 
 import (
 	"encoding/json"
@@ -67,14 +67,14 @@ func TestValidate(t *testing.T) {
 			tt := tt
 			t.Parallel()
 			err := Validate(tt.in)
+			var valError *ValidationErrors
+			isEpecificError := errors.As(err, &valError)
+			if isEpecificError {
+				assert.True(t, isEpecificError, "error is right type")
+			}
 			if err != nil {
 				if validationError, ok := err.(ValidationErrors); ok {
 					expectedError := tt.expectedErr.(ValidationErrors)
-					var valError *ValidationErrors
-					isEpecificError := errors.As(err, &valError)
-					if isEpecificError {
-						assert.True(t, isEpecificError, "error is right type")
-					}
 					assert.True(t, len(expectedError) == len(validationError), "amount of errors are right")
 					for index, errorItem := range validationError {
 						expected := expectedError[index]
