@@ -32,6 +32,9 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 		if strings.HasSuffix(user.Email, domainName) {
 			lowerEmail := strings.ToLower(user.Email)
 			splittedEmail := strings.SplitN(lowerEmail, "@", 2)
+			if len(splittedEmail) == 1 {
+				return nil, fmt.Errorf("wrong email found")
+			}
 			result[splittedEmail[1]]++
 		}
 	}
