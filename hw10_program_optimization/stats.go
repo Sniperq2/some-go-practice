@@ -20,12 +20,14 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	var user User
 	var splittedEmail []string
 	var err error
+	var userEmail string
 	for scanner.Scan() {
 		if err = json.Unmarshal(scanner.Bytes(), &user); err != nil {
 			return nil, err
 		}
-		if strings.HasSuffix(user.Email, domain) {
-			splittedEmail = strings.SplitN(strings.ToLower(user.Email), "@", 2)
+		userEmail = user.Email
+		if strings.HasSuffix(userEmail, domain) {
+			splittedEmail = strings.SplitN(strings.ToLower(userEmail), "@", 2)
 			if len(splittedEmail) == 1 {
 				return nil, fmt.Errorf("wrong email found")
 			}
