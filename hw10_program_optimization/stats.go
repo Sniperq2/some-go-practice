@@ -18,8 +18,8 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	domainName := fmt.Sprintf(".%s", domain)
 	scanner := bufio.NewScanner(r)
 	result := make(DomainStat)
+	var user User
 	for scanner.Scan() {
-		var user User
 		if err := json.Unmarshal(scanner.Bytes(), &user); err != nil {
 			return nil, err
 		}
