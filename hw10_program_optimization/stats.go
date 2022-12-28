@@ -22,7 +22,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	var splittedEmail []string
 	var err error
 	var userEmail string
-	var json = jsoniter.ConfigCompatibleWithStandardLibrary
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
 	for scanner.Scan() {
 		if err = json.Unmarshal(scanner.Bytes(), &user); err != nil {
 			return nil, err
