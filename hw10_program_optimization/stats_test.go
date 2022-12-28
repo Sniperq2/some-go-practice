@@ -1,3 +1,4 @@
+//go:build !bench
 // +build !bench
 
 package hw10programoptimization
@@ -35,5 +36,22 @@ func TestGetDomainStat(t *testing.T) {
 		result, err := GetDomainStat(bytes.NewBufferString(data), "unknown")
 		require.NoError(t, err)
 		require.Equal(t, DomainStat{}, result)
+	})
+}
+
+func TestFailDomainStat(t *testing.T) {
+	data := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_eaBrowsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}`
+	t.Run("wrong email", func(t *testing.T) {
+		_, err := GetDomainStat(bytes.NewBufferString(data), "gov")
+		require.Error(t, err)
+	})
+}
+
+func TestUnmarshalFailDomainStat(t *testing.T) {
+	// --------------------------------------|
+	data := `{"Id":1, "Name":"Howard Mendoza" "Username":"0Oliver","Email":"aliquid_qui@_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}`
+	t.Run("wrong json data", func(t *testing.T) {
+		_, err := GetDomainStat(bytes.NewBufferString(data), "gov")
+		require.ErrorIs(t, err, err, "syntax error")
 	})
 }
