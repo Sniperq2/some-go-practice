@@ -1,4 +1,4 @@
-package hw09structvalidator //nolint:structcheck
+package hw09structvalidator //nolint:structcheck,golint
 
 import (
 	"encoding/json"
