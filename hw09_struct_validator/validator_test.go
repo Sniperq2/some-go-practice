@@ -1,9 +1,12 @@
-package hw09structvalidator
+package hw09structvalidator //nolint:stylecheck,structcheck,golint
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type UserRole string
@@ -11,7 +14,7 @@ type UserRole string
 // Test the function on different structures and other types.
 type (
 	User struct {
-		ID     string `json:"id" validate:"len:36"`
+		ID     string `json:"id" validate:"len:6"`
 		Name   string
 		Age    int      `validate:"min:18|max:50"`
 		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
@@ -42,19 +45,46 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			// Place your code here.
+			User{
+				ID:     "765849",
+				Age:    18,
+				Email:  "admin@admin.com",
+				Role:   UserRole("admin"),
+				Phones: []string{"79991232233"},
+			},
+			nil,
 		},
-		// ...
-		// Place your code here.
+		{
+			App{
+				Version: "10000",
+			},
+			nil,
+		},
 	}
 
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
-
-			// Place your code here.
-			_ = tt
+			err := Validate(tt.in)
+			var valError *ValidationErrors
+			isEpecificError := errors.As(err, &valError)
+			if isEpecificError {
+				assert.True(t, isEpecificError, "error is right type")
+			}
+			if err != nil {
+				if validationError, ok := err.(ValidationErrors); ok {
+					expectedError := tt.expectedErr.(ValidationErrors)
+					assert.True(t, len(expectedError) == len(validationError), "amount of errors are right")
+					for index, errorItem := range validationError {
+						expected := expectedError[index]
+						assert.True(t, errors.Is(errorItem.Err, expected.Err), "error is right")
+					}
+				} else {
+					assert.True(t, errors.Is(err, tt.expectedErr), "same error")
+				}
+			}
+			assert.Equal(t, err, tt.expectedErr, "validated")
 		})
 	}
 }
