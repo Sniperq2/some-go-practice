@@ -15,6 +15,24 @@ import (
 func TestRun(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
+	t.Run("Zero tasks passed", func(t *testing.T) {
+		tasksCount := 0
+		tasks := make([]Task, 0, tasksCount)
+		var runTasksCount int32
+		for i := 0; i < tasksCount; i++ {
+			err := fmt.Errorf("error from task %d", i)
+			tasks = append(tasks, func() error {
+				time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
+				atomic.AddInt32(&runTasksCount, 1)
+				return err
+			})
+		}
+		workersCount := 10
+		maxErrorsCount := 1
+		err := Run(tasks, workersCount, maxErrorsCount)
+		require.Equalf(t, nil, err, "")
+	})
+
 	t.Run("if were errors in first M tasks, than finished not more N+M tasks", func(t *testing.T) {
 		tasksCount := 50
 		tasks := make([]Task, 0, tasksCount)
