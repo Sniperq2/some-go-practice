@@ -11,6 +11,10 @@ type Task func() error
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
+	if len(tasks) == 0 {
+		return nil
+	}
+
 	var wg sync.WaitGroup
 
 	t := make(chan Task)
@@ -47,8 +51,8 @@ func Run(tasks []Task, n, m int) error {
 	}
 
 	for errResult := range errChannel { // читаем из канала ошибок
-		if errResult != nil {
-			errorsCount++
+		if errResult != nil { // если ошибка
+			errorsCount++ // то прибавляем
 		}
 		if errorsCount == m && m > 0 {
 			close(done)
