@@ -14,40 +14,47 @@ func Run(tasks []Task, n, m int) error {
 	var wg sync.WaitGroup
 
 	t := make(chan Task)
-	errChannel := make(chan struct{}) // канал для записи ошибок
+	errChannel := make(chan error) // канал для записи ошибок
 	var errorsCount int
+	done := make(chan struct{})
 
 	go func() {
-		for err := range errChannel { // читаем из канала ошибок
-			if err == struct{}{} {
-				errorsCount++
+		for _, err := range tasks {
+			select {
+			case t <- err:
+			case <-done:
+				break
 			}
 		}
+		close(t)
+		wg.Wait() // ждем пока выполнятся все таски
+		close(errChannel)
 	}()
 
 	for i := 0; i < n; i++ { // создаем n горутин
 		wg.Add(1)
-		go func(t <-chan Task, errChannel chan<- struct{}) {
+		go func() {
 			defer wg.Done() // если горутина выполнилась
 
 			for result := range t { // в цикле по каналу читаем новую задачу
-				if err := result(); err != nil { // выполняем и если ошибка
-					errChannel <- struct{}{} // пишем в канал сигнал об ошибке
+				select {
+				case errChannel <- result():
+				case <-done:
+					return
 				}
 			}
-		}(t, errChannel)
+		}()
 	}
 
-	for _, result := range tasks {
-		t <- result
-	}
-
-	close(t)
-	wg.Wait() // ждем пока выполнятся все таски
-
-	close(errChannel)
-	if errorsCount > m {
-		return ErrErrorsLimitExceeded
+	for errResult := range errChannel { // читаем из канала ошибок
+		if errResult != nil {
+			errorsCount++
+		}
+		if errorsCount == m && m > 0 {
+			close(done)
+			wg.Wait()
+			return ErrErrorsLimitExceeded
+		}
 	}
 
 	return nil
