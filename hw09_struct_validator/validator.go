@@ -137,7 +137,7 @@ func validateMinMax(rules Rules, value reflect.Value) error {
 				return fmt.Errorf("%d, %w - validation failed", intValue, ErrValueIsGreater)
 			}
 		case "in":
-			var flag bool = false
+			flag := false
 			for _, item := range strings.Split(rule.Value, ",") {
 				val, err := strconv.Atoi(item)
 				if err != nil {
@@ -183,7 +183,7 @@ func Validate(v interface{}) error {
 
 		value := reflect.ValueOf(v).Field(i)
 		fieldValue := typeValue.Field(i)
-		switch value.Kind() { // nolint: exhaustive
+		switch value.Kind() { //nolint:exhaustive
 		case reflect.String:
 			if err := stringTypeConstraint(rules, value); err != nil {
 				validationErrors = append(validationErrors, ValidationError{

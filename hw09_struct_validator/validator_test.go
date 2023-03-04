@@ -1,12 +1,10 @@
-package hw09structvalidator //nolint:stylecheck,structcheck,golint
+package hw09structvalidator
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,6 +50,7 @@ func TestValidate(t *testing.T) {
 				Email:  "admin@admin.com",
 				Role:   UserRole("admin"),
 				Phones: []string{"79991232233"},
+				meta:   []byte{1},
 			},
 			nil,
 		},
@@ -67,25 +66,14 @@ func TestValidate(t *testing.T) {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
+
 			err := Validate(tt.in)
-			var valError *ValidationErrors
-			isEpecificError := errors.As(err, &valError)
-			if isEpecificError {
-				assert.True(t, isEpecificError, "error is right type")
+
+			if tt.expectedErr == nil {
+				require.NoError(t, err)
+				return
 			}
-			if err != nil {
-				if validationError, ok := err.(ValidationErrors); ok {
-					expectedError := tt.expectedErr.(ValidationErrors)
-					assert.True(t, len(expectedError) == len(validationError), "amount of errors are right")
-					for index, errorItem := range validationError {
-						expected := expectedError[index]
-						assert.True(t, errors.Is(errorItem.Err, expected.Err), "error is right")
-					}
-				} else {
-					assert.True(t, errors.Is(err, tt.expectedErr), "same error")
-				}
-			}
-			assert.Equal(t, err, tt.expectedErr, "validated")
+
 			require.ErrorIs(t, tt.expectedErr, err)
 		})
 	}
