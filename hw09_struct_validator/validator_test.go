@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
@@ -85,6 +86,7 @@ func TestValidate(t *testing.T) {
 				}
 			}
 			assert.Equal(t, err, tt.expectedErr, "validated")
+			require.ErrorIs(t, tt.expectedErr, err)
 		})
 	}
 }
